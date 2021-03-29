@@ -1,4 +1,3 @@
-
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
@@ -16,8 +15,15 @@ DallasTemperature sensors(&oneWire);
 
 U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
 
+const uint8_t *font = u8g2_font_crox3cb_tf;
+byte digitWidth = 13;
+byte digitHeight = 20;
+
 float tempC;
+float tempC_tmp;
 int num = 123;
+byte xOffset = 0;
+
 
 void setup(void) {
   u8g2.begin();
@@ -33,7 +39,7 @@ void loop(void) {
 void printOLED(void) {
   u8g2.firstPage();
   do {
-    u8g2.setFont(u8g2_font_crox3cb_tf);
+    u8g2.setFont(font);
     u8g2.setCursor(0, 20);
     u8g2.print(tempC, 1);
     u8g2.drawGlyph(53, 20, 0x00b0); // degree
