@@ -1,9 +1,9 @@
+#include <Arduino.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
 // Data wire is plugged into port 2 on the Arduino
 
-#include <Arduino.h>
 #include <U8g2lib.h>
 
 #define ONE_WIRE_BUS 10
@@ -13,9 +13,9 @@ OneWire oneWire(ONE_WIRE_BUS);
 // Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 DeviceAddress frontThermometer = {0x28, 0x29, 0x64, 0x1B, 0x06, 0x0, 0x0, 0x4D};
-DeviceAddress outsideThermometer = {0x28, 0x85, 0x36, 0x1C, 0x06, 0x00, 0x00, 0xFC};
+DeviceAddress backThermometer = {0x28, 0x85, 0x36, 0x1C, 0x06, 0x00, 0x00, 0xFC};
 
-U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+U8G2_SH1106_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, /* reset=*/U8X8_PIN_NONE);
 
 const uint8_t *font = u8g2_font_crox3cb_tf;
 byte digitWidth = 13;
@@ -25,35 +25,26 @@ float tempC_front;
 float tempC_back;
 float voltage;
 
-
-void setup(void) {
-  u8g2.begin();
-  sensors.begin();
+byte calculateXOffset(float temp)
+{
+  byte xOffset = 0;
+  if ((temp > -10 && temp < 0) || temp >= 10) //offset 1 chars
+  {
+    xOffset = digitWidth;
+  }
+  else if (temp >= 0 && temp < 10) //offset 2 chars
+  {
+    xOffset = digitWidth * 2;
+  }
+  return xOffset;
 }
 
-void loop(void) {
-  sensors.requestTemperatures(); // Send the command to get temperatures
-  tempC_front = sensors.getTempC(frontThermometer);
-  tempC_back = sensors.getTempC(outsideThermometer);
-  printOLED();
-}
-
-byte calculateXOffset(float temp) {
-    byte xOffset = 0;
-    if ((temp > -10 && temp < 0)  || temp >= 10)                //offset 1 chars
-    {
-      xOffset = digitWidth;
-    }
-    else if (temp >= 0 &&  temp < 10)                   //offset 2 chars
-    {
-      xOffset = digitWidth * 2;
-    }
-    return xOffset;
-}
-
-void printOLED(void) {
+void printOLED(void)
+{
+  u8g2.clearBuffer();
   u8g2.firstPage();
-  do {
+  do
+  {
     byte temp1XOffset = calculateXOffset(tempC_front);
     u8g2.setFont(font);
     u8g2.setCursor(0 + temp1XOffset, 20);
@@ -67,9 +58,26 @@ void printOLED(void) {
     u8g2.drawGlyph(73, 40, 0x00b0); // degree
     u8g2.drawStr(83, 40, "C");
 
-    u8g2.setCursor(0, 60);
+    byte voltageXOffset = calculateXOffset(voltage);
+    u8g2.setCursor(0 + voltageXOffset, 60);
     u8g2.print(voltage, 1);
-    u8g2.drawStr(53, 60, "V");
-  } while ( u8g2.nextPage() );
+    u8g2.drawStr(73, 60, "V");
+
+  } while (u8g2.nextPage());
+}
+
+void setup(void)
+{
+  u8g2.begin();
+  sensors.begin();
+}
+
+void loop(void)
+{
+  sensors.requestTemperatures(); // Send the command to get temperatures
+  tempC_front = sensors.getTempC(frontThermometer);
+  tempC_back = sensors.getTempC(backThermometer);
+  printOLED();
   delay(2000);
 }
+
