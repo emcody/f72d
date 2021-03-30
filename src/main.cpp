@@ -1,16 +1,12 @@
 #include <Arduino.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-
-// Data wire is plugged into port 2 on the Arduino
-
 #include <U8g2lib.h>
 
 #define ONE_WIRE_BUS 10
 
 OneWire oneWire(ONE_WIRE_BUS);
 
-// Pass our oneWire reference to Dallas Temperature.
 DallasTemperature sensors(&oneWire);
 DeviceAddress frontThermometer = {0x28, 0x29, 0x64, 0x1B, 0x06, 0x0, 0x0, 0x4D};
 DeviceAddress backThermometer = {0x28, 0x85, 0x36, 0x1C, 0x06, 0x00, 0x00, 0xFC};
@@ -80,4 +76,3 @@ void loop(void)
   printOLED();
   delay(2000);
 }
-
