@@ -20,6 +20,7 @@ byte digitHeight = 20;
 float tempC_front;
 float tempC_back;
 float voltage;
+bool blink;
 
 byte calculateXOffset(float temp)
 {
@@ -59,13 +60,28 @@ void printOLED(void)
     u8g2.print(voltage, 1);
     u8g2.drawStr(73, 60, "V");
 
+    u8g2.setFontMode(1);
+    u8g2.setDrawColor(0);
+    if (blink == true)
+    {
+      u8g2.setDrawColor(1);
+    }
+    u8g2.drawBox(110, 0, 14, 64);
+
+    u8g2.setDrawColor(2);
+    u8g2.drawStr(110, 20, "D");
+    u8g2.drawStr(110, 40, "P");
+    u8g2.drawStr(109, 60, "F");
+
   } while (u8g2.nextPage());
+  blink = !blink;
 }
 
 void setup(void)
 {
   u8g2.begin();
   sensors.begin();
+  blink = true;
 }
 
 void loop(void)
@@ -74,5 +90,5 @@ void loop(void)
   tempC_front = sensors.getTempC(frontThermometer);
   tempC_back = sensors.getTempC(backThermometer);
   printOLED();
-  delay(2000);
+  delay(1000);
 }
