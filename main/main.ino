@@ -34,31 +34,20 @@ void loop(void) {
   sensors.requestTemperatures(); // Send the command to get temperatures
   tempC = sensors.getTempCByIndex(0);
   printOLED_tmp();
+  printOLED();
 }
 
-
-void printOLED_tmp(void) {
-  u8g2.setFont(font);  // choose a suitable font
-  u8g2.firstPage();
-  do {
-    xOffset = 0;
-    if ((tempC > -10 && tempC < 0)  || tempC >= 10)                //offset 1 chars
+byte calculateXOffset(float temp) {
+    byte xOffset = 0;
+    if ((temp > -10 && temp < 0)  || temp >= 10)                //offset 1 chars
     {
       xOffset = digitWidth;
     }
-    else if (tempC >= 0 &&  tempC < 10)                   //offset 2 chars
+    else if (temp >= 0 &&  temp < 10)                   //offset 2 chars
     {
       xOffset = digitWidth * 2;
     }
-
-    u8g2.setCursor (0 + xOffset, 20);
-    u8g2.print (tempC, 1);
-    u8g2.drawGlyph(65, 20, 0x00b0); // degree
-    u8g2.drawStr(75, 20, "C");
-    u8g2.setCursor(83, 60);
-    u8g2.print(xOffset);
-} while ( u8g2.nextPage() );    
-  delay(1000);
+    return xOffset;
 }
 
 void printOLED(void) {
