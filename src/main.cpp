@@ -17,6 +17,14 @@ const uint8_t *font = u8g2_font_crox3cb_tf;
 byte digitWidth = 13;
 byte digitHeight = 20;
 
+int voltageAnalogInput = 1;
+float Vout = 0.00;
+float Vin = 0.00;
+float Vref = 4.5;
+int val = 0;
+float R1 = 979;
+float R2 = 470;
+
 float tempC_front;
 float tempC_back;
 float voltage;
@@ -66,10 +74,20 @@ void setup(void)
 {
   u8g2.begin();
   sensors.begin();
+  pinMode(voltageAnalogInput, INPUT);
 }
 
 void loop(void)
 {
+  val = analogRead(voltageAnalogInput);
+  Vout = Vref * (val / 1024.00);
+  Vin = Vout / (R2 / (R1 + R2));
+  if (Vin < 0.1)
+  {
+    Vin = 0.00;
+  }
+  voltage = Vin;
+
   sensors.requestTemperatures(); // Send the command to get temperatures
   tempC_front = sensors.getTempC(frontThermometer);
   tempC_back = sensors.getTempC(backThermometer);
